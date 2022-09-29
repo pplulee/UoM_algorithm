@@ -1,0 +1,5 @@
+1. What priority queue operations does each application require and with what relatively frequency (roughly)? e.g. few insertions, lots of checking for contains, as many pop min operations as insertions.
+
+2. With what complexity does each of the five considered alternative data structures implement those operations? Your answer should be in Big-O. You don’t need to justify this here but you should make sure you know why (you’re expected to look these up and understand them, not necessarily compute them).
+
+3. For each application, which data structure do you expect to be best?

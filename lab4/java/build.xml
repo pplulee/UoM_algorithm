@@ -1,0 +1,272 @@
+<project name="comp26120_lab4" default="compile" basedir=".">
+    <description>
+        build file for COMP26120 Lab 4
+    </description>
+    <property name="src" location="comp26120"/>
+    <property name="build" location="." />
+
+    <path id="classpath">
+        <fileset dir="${src}">
+            <include name="/*.class" />
+        </fileset>
+    </path>
+
+    <target name="clean">
+        <delete dir="${src}" includes="*.class"/>
+        <delete dir="${src}/apps/" includes="*.class"/>
+    </target>
+
+    <target name="compile_all" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <exclude name="working_files/*.java"/>
+            <exclude name="incorrect_implementations/*.java"/>
+        </javac>
+    </target>
+    
+    <target name="compile_llist1" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="llist1.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_llist1.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+    
+    <target name="compile_llist2" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="llist2.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_llist2.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_bad1" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="bad1.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_bad1.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_bad2" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="bad2.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_bad2.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_bad3" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="bad3.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_bad3.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_bad4" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="bad4.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_bad4.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_bad5" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="bad5.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="tests_bad5.java"/>
+            <include name="tests.java"/>
+        </javac>
+    </target>
+
+
+    <target name="compile_avltree" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="avltree.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="apps/concat_finder.java"/>
+            <include name="apps/concat_finder_avltree.java"/>
+            <include name="apps/sorting.java"/>
+            <include name="apps/sorting_avltree.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_binaryheap" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="binaryHeap.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="apps/concat_finder.java"/>
+            <include name="apps/concat_finder_binaryHeap.java"/>
+            <include name="apps/sorting.java"/>
+            <include name="apps/sorting_binaryHeap.java"/>
+        </javac>
+    </target>
+
+    <target name="compile_skiplist" description="compile the source">
+        <javac srcdir="${src}" destdir="${build}" includeantruntime="false">
+            <include name="skiplist.java"/>
+            <include name="PriorityQueue.java"/>
+            <include name="apps/concat_finder.java"/>
+            <include name="apps/concat_finder_skiplist.java"/>
+            <include name="apps/sorting.java"/>
+            <include name="apps/sorting_skiplist.java"/>
+        </javac>
+    </target>
+
+    <!-- For Part1a, to run tests, and run_tests -Dimp=<imp> e
+     e.g. "ant run_tests -Dimp=llist1 -->
+
+    <target name="run_tests" description="run the tests">
+        <java classname="comp26120.tests_${imp}">
+            <arg value="0"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="1"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="2"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="3"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="4"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="5"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="6"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="7"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="8"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="9"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="10"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="11"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="12"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="13"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="14"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="15"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="16"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="17"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="18"/>
+            <classpath location="${build}" />
+        </java>
+        <java classname="comp26120.tests_${imp}">
+            <arg value="19"/>
+            <classpath location="${build}" />
+        </java>
+   </target>
+
+    <target name="run_concat" depends="compile_all" description="run the concat_finder app on user supplied data">
+        <java classname="comp26120.apps.concat_finder_${imp}">
+            <classpath location="${build}" />
+        </java>
+    </target>
+
+    <target name="run_concat_data" description="run the concat_finder app using instructor supplied data">
+        <java classname="comp26120.apps.concat_finder_${imp}">
+            <classpath location="${build}" />
+            <redirector input="../data/concat_data"/>
+        </java>
+    </target>
+
+    <target name="run_concat_data_at" description="run the concat_finder app using instructor supplied data">
+        <java classname="comp26120.apps.concat_finder_${imp}">
+            <classpath location="${build}" />
+            <redirector input="concat_data"/>
+        </java>
+    </target>
+
+
+    <target name="run_concat_data_silent" depends="compile_all" description="run the concat_finder app using instructor supplied data and suppress the output">
+        <java classname="comp26120.apps.concat_finder_${imp}">
+            <classpath location="${build}" />
+            <redirector input="../data/concat_data" output="/dev/null"/>
+        </java>
+    </target>
+
+    <target name="run_sorting" depends="compile_all" description="run the sorting app on user supplied data">
+        <java classname="comp26120.apps.sorting_${imp}">
+            <classpath location="${build}" />
+        </java>
+    </target>
+
+    <target name="run_sorting_data" depends="compile_all" description="run the sorting app on instructor supplied ata">
+        <java classname="comp26120.apps.sorting_${imp}">
+            <classpath location="${build}" />
+            <redirector input="../data/sorting_data"/>
+        </java>
+    </target>
+
+    <target name="run_sorting_data_at" description="run the sorting app on instructor supplied ata">
+        <java classname="comp26120.apps.sorting_${imp}">
+            <classpath location="${build}" />
+            <redirector input="sorting_data_short"/>
+        </java>
+    </target>
+
+    <target name="run_sorting_data_short" depends="compile_all" description="run the sorting app on instructor supplied ata">
+        <java classname="comp26120.apps.sorting_${imp}">
+            <classpath location="${build}" />
+            <redirector input="../data/sorting_data_short"/>
+        </java>
+    </target>
+
+    <target name="run_sorting_data_silent" depends="compile_all" description="run the sorting app using instructor supplied data and suppress the outpue">
+        <java classname="comp26120.apps.sorting_${imp}">
+            <classpath location="${build}" />
+            <redirector input="../data/sorting_data" output="/dev/null"/>
+        </java>
+    </target>
+
+
+</project>
