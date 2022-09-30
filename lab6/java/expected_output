@@ -1,0 +1,183 @@
+Call: java -ea comp26120.ap bfs MAN MAN
+Output:
+
+Total = 0km
+LOG: relaxed 66355 edges
+
+Call: java -ea comp26120.ap bfs MAN SYD
+Output:
+
+MAN to YVR (7337km)
+YVR to SYD (12501km)
+Total = 19838km
+LOG: relaxed 6291 edges
+
+Call: java -ea comp26120.ap bfs MAN MUC
+Output:
+
+MAN to MUC (1130km)
+Total = 1130km
+LOG: relaxed 38 edges
+
+Call: java -ea comp26120.ap bfs MAN ROA
+Output:
+
+MAN to PHL (5512km)
+PHL to ROA (499km)
+Total = 6011km
+LOG: relaxed 10782 edges
+
+Call: java -ea comp26120.ap bfs TTA MAN
+Output:
+
+TTA to CMN (644km)
+CMN to BRU (2183km)
+BRU to MAN (536km)
+Total = 3363km
+LOG: relaxed 353 edges
+
+Call: java -ea comp26120.ap bfs MAN TTA
+Output:
+
+No route from MAN to TTA
+LOG: relaxed 66355 edges
+
+Call: java -ea comp26120.ap bellman-ford MAN MAN
+Output:
+
+Total = 0km
+LOG: relaxed 597807 edges
+
+Call: java -ea comp26120.ap bellman-ford MAN SYD
+Output:
+
+MAN to HEL (1812km)
+HEL to HKG (7810km)
+HKG to SYD (7394km)
+Total = 17016km
+LOG: relaxed 597807 edges
+
+Call: java -ea comp26120.ap bellman-ford MAN MUC
+Output:
+
+MAN to MUC (1130km)
+Total = 1130km
+LOG: relaxed 597807 edges
+
+Call: java -ea comp26120.ap bellman-ford MAN ROA
+Output:
+
+MAN to EWR (5383km)
+EWR to IAD (341km)
+IAD to ROA (285km)
+Total = 6009km
+LOG: relaxed 597807 edges
+
+Call: java -ea comp26120.ap bellman-ford TTA MAN
+Output:
+
+TTA to CMN (644km)
+CMN to MAD (867km)
+MAD to MAN (1436km)
+Total = 2947km
+LOG: relaxed 531384 edges
+
+Call: java -ea comp26120.ap bellman-ford MAN TTA
+Output:
+
+No route from MAN to TTA
+LOG: relaxed 597807 edges
+
+Call: java -ea comp26120.ap dijkstra MAN MAN
+Output:
+
+Total = 0km
+LOG: relaxed 0 edges
+
+Call: java -ea comp26120.ap dijkstra MAN SYD
+Output:
+
+MAN to HEL (1812km)
+HEL to HKG (7810km)
+HKG to SYD (7394km)
+Total = 17016km
+LOG: relaxed 65691 edges
+
+Call: java -ea comp26120.ap dijkstra MAN MUC
+Output:
+
+MAN to MUC (1130km)
+Total = 1130km
+LOG: relaxed 8519 edges
+
+Call: java -ea comp26120.ap dijkstra MAN ROA
+Output:
+
+MAN to EWR (5383km)
+EWR to IAD (341km)
+IAD to ROA (285km)
+Total = 6009km
+LOG: relaxed 30224 edges
+
+Call: java -ea comp26120.ap dijkstra TTA MAN
+Output:
+
+TTA to CMN (644km)
+CMN to MAD (867km)
+MAD to MAN (1436km)
+Total = 2947km
+LOG: relaxed 11453 edges
+
+Call: java -ea comp26120.ap dijkstra MAN TTA
+Output:
+
+No route from MAN to TTA
+LOG: relaxed 66355 edges
+
+Call: java -ea comp26120.ap astar MAN MAN
+Output:
+
+Total = 0km
+LOG: relaxed 0 edges
+
+Call: java -ea comp26120.ap astar MAN SYD
+Output:
+
+MAN to HEL (1812km)
+HEL to HKG (7810km)
+HKG to SYD (7394km)
+Total = 17016km
+LOG: relaxed 1896 edges
+
+Call: java -ea comp26120.ap astar MAN MUC
+Output:
+
+MAN to MUC (1130km)
+Total = 1130km
+LOG: relaxed 315 edges
+
+Call: java -ea comp26120.ap astar MAN ROA
+Output:
+
+MAN to EWR (5383km)
+EWR to IAD (341km)
+IAD to ROA (285km)
+Total = 6009km
+LOG: relaxed 779 edges
+
+Call: java -ea comp26120.ap astar TTA MAN
+Output:
+
+TTA to CMN (644km)
+CMN to MAD (867km)
+MAD to MAN (1436km)
+Total = 2947km
+LOG: relaxed 585 edges
+
+Call: java -ea comp26120.ap astar MAN TTA
+Output:
+
+No route from MAN to TTA
+LOG: relaxed 66355 edges
+
+
