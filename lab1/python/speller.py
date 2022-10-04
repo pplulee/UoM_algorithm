@@ -108,7 +108,7 @@ def process_args(args):
             break
         else:
             # Don't think we ever get here before exception thrown earlier.
-            printf ("didn't expect program parameter %c [0%o]\n" % (o, o))
+            print ("didn't expect program parameter %c [0%o]\n" % (o, o))
             usage ()
  
  
