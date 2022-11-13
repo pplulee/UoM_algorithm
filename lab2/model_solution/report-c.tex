@@ -1,0 +1,363 @@
+\documentclass[a4]{article}
+\usepackage{gnuplottex}
+\usepackage{csvsimple}
+\usepackage{subcaption}
+\usepackage{verbatim}
+\title{COMP26120 Lab 2 Report}
+\author{Louise A. Dennis}
+\begin{document}
+\maketitle
+
+\section{Experiment 1 -- Sorting Performance}
+
+\subsection{Theoretical Best Case}
+
+\paragraph{Hypothesis} The behaviour for insertion sort on sorted input is $O(n)$. 
+
+Theoretically, the best case for insertion sort is $O(n)$ when the input is sorted.  The algorithm loops over the input and inserts each element at the start of the sorted list.  
+
+\paragraph{Experimental Design} To test the hypothesis, random sorted input dictionaries were produced. 5 dictionaries of sizes 10K, 20K, 30K, 40K and 50K were generated.  The spell checking program was then run on each dictionary with an input file containing a single word that was not in the dictionary in order that the look-up time should have as little impact on the comparative performance on each dictionary as possible.  The time for the program to execute was measured using the UNIX \texttt{time} command summing the \texttt{user} and \texttt{sys} values output by the command.  
+
+The process of generating dictionaries and computing the time was automated using the shell scripts shown in Appendix~\ref{app:shell_scripts}.
+
+\paragraph{Results} The results were then plotted using \texttt{gnuplot} and \texttt{gnuplot}'s {\bf fit} functionality was used to fit a line $f(x) = m \times x + q$  calculating values for $m$ and $q$ in the process.  The results are shown in Figure~\ref{fig:sorted1} and the raw data can be seen in Appendix~\ref{app:data}.
+\begin{figure}
+\begin{center}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 400,300 font "Arial,9"}]
+max(x, y) = (x > y ? x:y)
+min(x, y) = (x < y ? x:y)
+set title "Time taken to sort files"
+set ylabel "Time in Seconds"
+set xlabel "Size of Dictionary"
+set xrange [9000:51000]
+
+f(x) = m * x + q
+
+fit f(x) 'data/sorted_data_c.dat' using  1:2 via m, q
+
+mq_value = sprintf("Parameters values\nm = %f\nq = %f", m, q)
+set label 1 at 15000,0.06 mq_value
+
+plot "data/sorted_data_c.dat" using 1:2 t "time", f(x) ls 2 t 'Best fit line'
+set out
+\end{gnuplot}
+\end{center}
+\caption{Time taken to look up a word in a sorted dictionary, with best fit line $f(x) = mx + q$ shown and values for the parameters $m$ and $q$}
+\label{fig:sorted1}
+\end{figure}
+As can be seen from the graph the the line $f(x) = mx + q$ has a good fit and the values of 0.000001 and -0.003 have been computed for $m$ and $q$ respectively.  This confirms the hypothesis about the behaviour of the algorithm on sorted input, it allows us to predict the time taken to sort a dictionary of size $x$ as $0.000001x - 0.003$.  However the value of 0.003 is probably incorrect.  It would suggest that for small dictionaries the algorithm would execute in negative time.  This is probably the result of the set up time being negligible and the noise in the time system causing a miscalculation.  Further experimentation with even larger dictionaries would help remove this error.
+
+\subsection{Theoretical Worst Case}
+
+\paragraph{Hypothesis} The behaviour for insertion sort on reverse sorted input is $O(n^2)$.  
+
+Theoretically, the worst case for insertion sort is $O(n^2)$ when the input is reverse sorted.  The algorithm loops over the input and inserts each element at the end of the sorted list.
+
+\paragraph{Experimental Design} To test the hypothesis, random reverse sorted input dictionaries were produced. 5 dictionaries of sizes 10K, 20K, 30K, 40K and 50K were generated.  The spell checking program was then run on each dictionary with an input file containing a single word that was not in the dictionary in order that the look-up time should have as little impact on the comparative performance on each dictionary as possible.  The time for the program to execute was measured using the UNIX \texttt{time} command summing the \texttt{user} and \texttt{sys} values output by the command.  
+
+The process of generating dictionaries and computing the time was automated using the shell scripts shown in Appendix~\ref{app:shell_scripts}.
+
+\paragraph{Results} The results were then plotted using \texttt{gnuplot} and \texttt{gnuplot}'s {\bf fit} functionality was used to fit a line $f(x) = m \times x^2 + q$  calculating values for $m$ and $q$ in the process.  Note that $q$ was initially set to $0.1$ based on viewing the data points on the graph, and the fitting process didn't vary this value~\footnote{This seems to be a bug in the gnuplot fitting algorithm where it doesn't vary $q$ for quadratic functions.  For a two hour lab setting an initial value was fine, for a scientific paper this wouldn't be acceptable without some justification.}.  The results are shown in Figure~\ref{fig:sorted2} and the raw data can be seen in Appendix~\ref{app:data}.
+\begin{figure}
+\begin{center}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 400,300 font "Arial,9"}]
+max(x, y) = (x > y ? x:y)
+min(x, y) = (x < y ? x:y)
+set title "Time taken to sort files"
+set ylabel "Time in Seconds"
+set xlabel "Size of Dictionary"
+set xrange [9000:51000]
+
+sq(x) = x * x
+f(x) = m * x**2 + q
+q=0.1
+
+fit f(x) 'data/reverse_data_c.dat' using 1:2 via m, q
+
+mq_value = sprintf("Parameters values\n100,000m = %f\nq = %f", m*100000, q)
+set label 1 at 15000,5 mq_value
+
+plot "data/reverse_data_c.dat" using 1:2 t "time", f(x) ls 2 t 'Best Fit Line'
+set out
+\end{gnuplot}
+\end{center}
+\caption{Time taken to look up a word in a reverse sorted dictionary, with best fit line $f(x) = mx^2 + q$ shown and values for the parameters $m$ and $q$}
+\label{fig:sorted2}
+\end{figure}
+As can be seen from the graph the line $f(x) = mx^2 + q$ has a good fit to the data and the values $0.0002 \times 10^{-7}$ and 0.1 have been computed for $m$ and $q$ respectively.  This confirms our hypothesis about the behaviour of the algorithm on reverse sorted input, and allows us to predict the time taken to sort a dictionary of size $x$ as $0.0.002 \times 10^{-7} x^2 + 0.1$.
+
+\subsection{Average Case}
+
+\paragraph{Hypothesis} The behaviour for insertion sort on random input is somewhere between the theoretical best case $O(n)$ and the theoretical worst case $O(n^2)$.  
+
+If we've identified the best and worst cases correctly, then average case performance should lie between these two.  However we don't know whether the behaviour will be linear (if slower than best case) or quadratic (if faster than worst case).  Plotting the data and comparing to best and worst cases should help us determine this.
+
+\paragraph{Experimental Design} To test the hypothesis, random input dictionaries were produced. 5 dictionaries of sizes 10K, 20K, 30K, 40K and 50K were generated.  The spell checking program was then run on each dictionary with an input file containing a single word that was not in the dictionary in order that the look-up time should have as little impact on the comparative performance on each dictionary as possible.  The time for the program to execute was measured using the UNIX \texttt{time} command summing the \texttt{user} and \texttt{sys} values output by the command.  
+
+The process of generating dictionaries and computing the time was automated using the shell scripts shown in Appendix~\ref{app:shell_scripts}.
+
+\paragraph{Results} The results were then plotted using \texttt{gnuplot} and \texttt{gnuplot}'s {\bf fit} functionality was used to fit two lines,  $f1(x) = m1 \times x + q1$ (linear) and $f2(x) = m2 \times x^2 + q2$ (quadratic) calculating values for $m1$, $m2$, $q1$ and $q2$ in the process.  As above $q2$ was initially set to 0.1.  The results are shown in Figure~\ref{fig:sorted3} which also shows the computed lines for best and worst case performance.  The raw data can be seen in Appendix~\ref{app:data}.
+\begin{figure}
+\begin{center}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 400,300 font "Arial,9"}]
+max(x, y) = (x > y ? x:y)
+min(x, y) = (x < y ? x:y)
+set title "Time taken to sort files"
+set ylabel "Time in Seconds"
+set xlabel "Size of Dictionary"
+set xrange [9000:51000]
+
+q2 = 0.1
+q4 = 0.1
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x *x  + q2
+f3(x) = m3 * x + q3
+f4(x) = m4 * x *x  + q4
+
+fit f1(x) 'data/none_data_c.dat' using  1:2 via m1, q1
+
+mq1_value = sprintf("Parameters values\nm1 = %f\nq1 = %f", m1, q1)
+set label 1 at 15000,4 mq1_value
+
+fit f2(x) 'data/none_data_c.dat' using  1:2 via m2, q2
+mq2_value = sprintf("Parameters values\n100,000m2 = %f\nq2 = %f", m2*100000, q2)
+set label 2 at 15000,3 mq2_value
+
+fit f3(x) 'data/sorted_data_c.dat' using 1:2 via m3, q3
+fit f4(x) 'data/reverse_data_c.dat' using 1:2 via m4, q4
+
+plot "data/none_data_c.dat" using 1:2 t "time", f1(x) ls 2 t 'Best Fit Linear Line', f2(x) ls 3 t 'Best Fit Polynomial Line', f3(x) ls 4 t 'Theoretical Best Case', f4(x) ls 5 t 'Theoretical Worst Case'
+set out
+\end{gnuplot}
+\end{center}
+\caption{Time taken to look up words in a random dictionary, with best fit lines $f1(x) = m1x + q1$ and $f2(x) = m2x^2 + q2$ shown and values for the parameters $m1$, $m2$, $q1$ and $q2$}
+\label{fig:sorted3}
+\end{figure}
+As can be seen from the graph the line both lines $f1(x)$ and $f2(x)$ can be fitted to the data.  However $f2(x) = m2x^2 + q2$ is a better fit than $f1$.  For $f2(x)$ the values $0.0001 \times 10^{-8}$ and 0.1 have been computed for $m2$ and $q2$ respectively.  This confirms our hypothesis that the behaviour of the average case lies between that of the best and worst cases and lets us predict that on average the time taken to look up an entry in a dictionary of size $x$ will be $0.0001 \times 10^{8}x^2 + 0.1$ seconds.
+
+\subsection{Validation and Discussion}
+
+While the average case lies between that of the best and worst cases.  The fact that the line $f2(x) = m2x^2 + q2$ is a better fit for the data than a linear fit means that, in complexity terms, the performance in the average case of insertion sort is polynomial rather than linear.  So average case performance of insertion sort more comparable to worst case performance than to best case performance.
+
+
+\section{Experiment 2}
+
+\paragraph{Hypothesis} Given a dictionary of size, $k$, and $n$ queries.  The point where it becomes quicker to sort the dictionary using insertion sort and then use binary search to check the query, as opposed to using linear search on the unsorted dictionary falls somewhere between $\frac{n}{10}$ queries and $10n$ queries.
+
+Given a dictionary of size $k$ and $n$ queries.  The time taken to look up the queries in the dictionary using linear search will be around $nk$ and the time taken to sort the dictionary (average case) and then perform the look up using binary search will be around $k^2 + n \times (log~  k)$.  If we assume that, as the numbers become larger. the addition  of $n \times (log~ k)$ becomes negligible then we would expect the crossover point to occur around the moment where $n$ becomes larger than $k$ (so $nk$ becomes larger than $k^2$).  For the purpose of our hypothesis we are assuming this is in the range where $n$ and $k$ have the same order of magnitude -- so $\frac{k}{10} \leq k \leq 10k$.
+
+\paragraph{Experimental Design} To test the hypothesis, random input dictionaries were produced. 5 dictionaries of sizes 10K, 20K, 30K, 40K and 50K were generated.    For each dictionary five input files of queries were also produced where, if $k$ is the size of the dictionary the query files were of the size $\frac{k}{10}$, $\frac{k}{2}$, $k$, $5k$ and $10k$.  The spell checking program was then run on each dictionary with each input file in two modes -- the first mode performed only linear search and the second mode performed insertion sort followed by binary search.  The time for the program to execute was measured using the UNIX \texttt{time} command summing the \texttt{user} and \texttt{sys} values output by the command.  
+
+The process of generating dictionaries, query input files and computing the time was automated using the shell scripts shown in Appendix~\ref{app:shell_scripts2}.
+
+\paragraph{Results} The results were then plotted using \texttt{gnuplot} and \texttt{gnuplot}'s {\bf fit} functionality was used to fit the line, $f(x) = m \times x + q$ for each value of $k$ (Note that if $k$ is fixed then both approaches should be linear in the size of $n$).  The results are shown in Figure~\ref{fig:amortized} where the range of x values has been restricted to 0 to $3k$ so the crossover point can be better seen.  The raw data can be seen in Appendix~\ref{app:data2}.
+\begin{figure}
+\centering
+\begin{subfigure}{0.4\textwidth}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 280,200 font "Arial,6"}]
+set title "Time taken to Query the Dictionary of size 10000"
+set ylabel "Time in Seconds"
+set xlabel "Size of query file divided by the size of the dictionary"
+set xrange [0:3]
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x + q2
+
+fit f1(x) 'data/10000_amortised_data_linear_c.dat' using  1:2 via m1, q1
+
+fit f2(x) 'data/10000_amortised_data_binary_c.dat' using  1:2 via m2, q2
+
+plot "data/10000_amortised_data_linear_c.dat" using 1:2 t "linear search", "10000_amortised_data_binary_c.dat" using 1:2 t "binary search", f1(x) ls 2 t 'Best Fit Line (linear search)', f2(x) ls 3 t 'Best Fit Line (binary search)'
+set out
+\end{gnuplot}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.4\textwidth}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 280,200 font "Arial,6"}]
+set title "Time taken to Query the Dictionary of size 20000"
+set ylabel "Time in Seconds"
+set xlabel "Size of query file divided by the size of the dictionary"
+set xrange [0:3]
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x + q2
+
+fit f1(x) 'data/20000_amortised_data_linear_c.dat' using  1:2 via m1, q1
+
+fit f2(x) 'data/20000_amortised_data_binary_c.dat' using  1:2 via m2, q2
+
+plot "data/20000_amortised_data_linear_c.dat" using 1:2 t "linear search", "data/20000_amortised_data_binary_c.dat" using 1:2 t "binary search", f1(x) ls 2 t 'Best Fit Line (linear search)', f2(x) ls 3 t 'Best Fit Line (binary search)'
+set out
+\end{gnuplot}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.4\textwidth}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 280,200 font "Arial,6"}]
+set title "Time taken to Query the Dictionary of size 30000"
+set ylabel "Time in Seconds"
+set xlabel "Size of query file divided by the size of the dictionary"
+set xrange [0:3]
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x + q2
+
+fit f1(x) 'data/30000_amortised_data_linear_c.dat' using  1:2 via m1, q1
+
+fit f2(x) 'data/30000_amortised_data_binary_c.dat' using  1:2 via m2, q2
+
+plot "data/30000_amortised_data_linear_c.dat" using 1:2 t "linear search", "data/30000_amortised_data_binary_c.dat" using 1:2 t "binary search", f1(x) ls 2 t 'Best Fit Line (linear search)', f2(x) ls 3 t 'Best Fit Line (binary search)'
+set out
+\end{gnuplot}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.4\textwidth}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 280,200 font "Arial,6"}]
+set title "Time taken to Query the Dictionary of size 40000"
+set ylabel "Time in Seconds"
+set xlabel "Size of query file divided by the size of the dictionary"
+set xrange [0:3]
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x + q2
+
+fit f1(x) 'data/40000_amortised_data_linear_c.dat' using  1:2 via m1, q1
+
+fit f2(x) 'data/40000_amortised_data_binary_c.dat' using  1:2 via m2, q2
+
+plot "data/40000_amortised_data_linear_c.dat" using 1:2 t "linear search", "data/40000_amortised_data_binary_c.dat" using 1:2 t "binary search", f1(x) ls 2 t 'Best Fit Line (linear search)', f2(x) ls 3 t 'Best Fit Line (binary search)'
+set out
+\end{gnuplot}
+\end{subfigure}
+\hfill
+\begin{subfigure}{0.5\textwidth}
+\begin{gnuplot}[terminal=jpeg, terminaloptions={size 300,200 font "Arial,6"}]
+set title "Average Time taken to Query the Dictionary of size 50000"
+set ylabel "Time in Seconds"
+set xlabel "Size of query file divided by the size of the dictionary"
+set xrange [0:3]
+
+f1(x) = m1 * x + q1
+f2(x) = m2 * x + q2
+
+fit f1(x) 'data/50000_amortised_data_linear_c.dat' using  1:2 via m1, q1
+
+fit f2(x) 'data/50000_amortised_data_binary_c.dat' using  1:2 via m2, q2
+
+plot "data/50000_amortised_data_linear_c.dat" using 1:2 t "linear search", "data/50000_amortised_data_binary_c.dat" using 1:2 t "binary search", f1(x) ls 2 t 'Best Fit Line (linear search)', f2(x) ls 3 t 'Best Fit Line (binary search)'
+set out
+\end{gnuplot}
+\end{subfigure}
+\caption{Time taken to look up a word in a random dictionaryies of sizes 10000, 20000, 30000, 40000 and 50000 with best fit lines $f1(x) = m1x + q1$ (linear search) and $f2(x) = m2x^2 + q2$ (insertion sort plus binary search) shown.}
+\label{fig:amortized}
+\end{figure}
+As can be seen from the graphs the lines for $f1(x)$ and $f2(x)$ cross at around 0.4 for all sizes of dictionary.  This confirms our hypothesis that it becomes quicker to sort the dictionary of size $n$ using insertion sort and then use binary search to check the query, as opposed to using linear search on the unsorted dictionary somewhere between $\frac{n}{10}$ queries and $10n$ queries.  In fact it tells us that this point occurs somewhere around 0.4$n$ queries.
+\appendix
+\section{Raw Data for Experiment 1}
+\label{app:data}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Sorted Data} \\ \hline Size & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/sorted_data_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Reverse Sorted Data} \\ \hline Size & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/reverse_data_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Random Data} \\ \hline Size & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/none_data_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\section{Shell Scripts for Experiment 1}
+\label{app:shell_scripts}
+\subsection{Generating Dictionaries}
+\verbatiminput{dict_query_generate_1.sh}
+
+\subsection{Script for Computing Run Times}
+\verbatiminput{data_generate_exp1_c.sh}
+
+\section{Raw Data for Experiment 2}
+\label{app:data2}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:10K, Linear Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/10000_amortised_data_linear_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:10K, Binary Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/10000_amortised_data_binary_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:20K, Linear Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/20000_amortised_data_linear_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:20K, Binary Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/20000_amortised_data_binary_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:30K, Linear Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/30000_amortised_data_linear_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:30K, Binary Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/30000_amortised_data_binary_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:40K, Linear Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/40000_amortised_data_linear_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:40K, Binary Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/40000_amortised_data_binary_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:50K, Linear Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/50000_amortised_data_linear_c.csv}{}%
+{\csvcoli & \csvcolii}
+\csvreader[
+tabular={|l|l|},
+table head={\hline \multicolumn{2}{|c|}{Dictionary Size:50K, Binary Search} \\ \hline $\frac{k}{n}$ & Time (s)\\\hline},
+late after line=\\\hline,
+no head]{data/50000_amortised_data_binary_c.csv}{}%
+{\csvcoli & \csvcolii}
+
+\section{Shell Scripts for Experiment 2}
+\label{app:shell_scripts2}
+
+\subsection{Generating Dictionaries and Queries}
+\verbatiminput{dict_query_generate_2.sh}
+
+\subsection{Computing Run Times}
+\verbatiminput{data_generate_exp2_c.sh}
+
+\end{document}
