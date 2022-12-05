@@ -10,6 +10,7 @@ class hashset:
         self.mode = config.mode
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
+        self.insert_num = 0
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -43,26 +44,32 @@ class hashset:
         if self.mode == 0 or self.mode == 4:  # linear probing
             pos = self.gethash(value)
             if self.hash_table[pos] == value:
+                self.insert_num += 1
                 return True
             for i in range(pos, self.hash_table_size):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
+                    self.insert_num += 1
                     return True
             for i in range(0, pos):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
+                    self.insert_num += 1
                     return True
         elif self.mode == 1:  # quadratic probing
             for i in range(self.hash_table_size):
                 pos = (self.gethash(value) + i * i) % self.hash_table_size
                 if self.hash_table[pos] is None:
                     self.hash_table[pos] = value
+                    self.insert_num += 1
                     return True
                 elif self.hash_table[pos] == value:
+                    self.insert_num += 1
                     return True
-        # table is full
-        self.resize()
-        return self.insert(value)
+        # table occupation > 0.75
+        if self.insert_num / self.hash_table_size > 0.75:
+            self.resize()
+            return self.insert(value)
 
     def find(self, value):
         if self.mode == 0 or self.mode == 4:  # linear probing
@@ -89,6 +96,7 @@ class hashset:
 
     def resize(self):
         print("Hash table is full, resizing...")
+        self.insert_num = 0
         temp = self.hash_table
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
         self.hash_table = [None] * self.hash_table_size
@@ -104,9 +112,11 @@ class hashset:
                 elements += 1
                 if self.gethash(self.hash_table[i]) != i:
                     collisions += 1
+        print(f"Hash table size: {self.hash_table_size}")
         print(f"Hash table contains {elements} elements")
         print(f"Hash table has {collisions} collisions")
-
+        print(f"Hash table load factor: {elements / self.hash_table_size}")
+        print(f"Insertion operation number: {self.insert_num}")
 
 # This is a cell structure assuming Open Addressing
 # It should contain and element that is the key and a state which is empty, in_use or deleted
