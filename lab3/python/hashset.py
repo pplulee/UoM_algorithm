@@ -26,48 +26,69 @@ class hashset:
         return n
 
     def gethash(self, value):
-        if self.mode == 0:
+        sum = 0
+        for char in value:
+            sum += ord(char)
+        if self.mode == 0 or self.mode == 1:
             # modular division
-            sum = 0
-            for char in value:
-                sum += ord(char)
             return sum % self.hash_table_size
         elif self.mode == 4:
             # random linear and polynomial
-            key = value % self.hash_table_size
+            # use sum as key
             a = self.nextPrime(ord(value[0]))
             b = self.nextPrime(ord(value[-1]))
-            return (a * key + b) % self.hash_table_size
+            return (a * sum + b) % self.hash_table_size
 
     def insert(self, value):
-        pos = self.gethash(value)
-        for i in range(pos, self.hash_table_size):
-            if self.hash_table[i] is None:
-                self.hash_table[i] = value
+        if self.mode == 0 or self.mode == 4:  # linear probing
+            pos = self.gethash(value)
+            if self.hash_table[pos] == value:
                 return True
-        for i in range(0, pos):
-            if self.hash_table[i] is None:
-                self.hash_table[i] = value
-                return True
+            for i in range(pos, self.hash_table_size):
+                if self.hash_table[i] is None:
+                    self.hash_table[i] = value
+                    return True
+            for i in range(0, pos):
+                if self.hash_table[i] is None:
+                    self.hash_table[i] = value
+                    return True
+        elif self.mode == 1:  # quadratic probing
+            for i in range(self.hash_table_size):
+                pos = (self.gethash(value) + i * i) % self.hash_table_size
+                if self.hash_table[pos] is None:
+                    self.hash_table[pos] = value
+                    return True
+                elif self.hash_table[pos] == value:
+                    return True
+        # table is full
         self.resize()
         return self.insert(value)
 
     def find(self, value):
-        pos = self.gethash(value)
-        for i in range(pos, self.hash_table_size):
-            if self.hash_table[i] == value:
-                return True
-        for i in range(0, pos):
-            if self.hash_table[i] == value:
-                return True
+        if self.mode == 0 or self.mode == 4:  # linear probing
+            pos = self.gethash(value)
+            for i in range(pos, self.hash_table_size):
+                if self.hash_table[i] == value:
+                    return True
+            for i in range(0, pos):
+                if self.hash_table[i] == value:
+                    return True
+        elif self.mode == 1:
+            for i in range(self.hash_table_size):
+                pos = (self.gethash(value) + i * i) % self.hash_table_size
+                if self.hash_table[pos] == value:
+                    return True
+                elif self.hash_table[pos] is None:
+                    return False
         return False
 
     def print_set(self):
         for i in range(0, self.hash_table_size):
             if self.hash_table[i] is not None:
-                print(f"{i+1}: {self.hash_table[i]}")
+                print(f"{i + 1}: {self.hash_table[i]}")
 
     def resize(self):
+        print("Hash table is full, resizing...")
         temp = self.hash_table
         self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
         self.hash_table = [None] * self.hash_table_size
