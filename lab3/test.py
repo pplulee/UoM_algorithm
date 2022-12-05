@@ -37,7 +37,7 @@ print("Testing mode "+str(mode)+"...")
 start = time.time()
 for test in sorted(os.listdir('data/'+problems)) :
   testdir = 'data/'+problems+'/'+test
-  if os.path.isdir(testdir): 
+  if os.path.isdir(testdir):
     with open(testdir+'/ans') as ans:
       ans_lines = ans.read().splitlines()
 
@@ -47,7 +47,7 @@ for test in sorted(os.listdir('data/'+problems)) :
       for line in process.stdout.readlines():
         line = line.strip().decode("utf-8").strip('\x00')
         #Skip blank lines in the output
-        if len(line) == 0 : 
+        if len(line) == 0 :
            continue
         # We depend on particular bits of the output occuring either side of the spelling errors
         if "Spellchecking:" in line:
@@ -61,9 +61,9 @@ for test in sorted(os.listdir('data/'+problems)) :
             print("Test failed. Expected "+ans_lines[0]+" but got "+line)
           else:
             ans_lines = ans_lines[1:]
-         
+
       if len(ans_lines) > 0:
-         print("Test failed. Expected more spelling errors") 
+         print("Test failed. Expected more spelling errors")
          print("First missing line: "+ans_lines[0])
 end = time.time()
 print("Took "+str(end-start)+" seconds")

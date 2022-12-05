@@ -32,7 +32,7 @@ class hashset:
             for char in value:
                 sum += ord(char)
             return sum % self.hash_table_size
-        elif self.mode == 1:
+        elif self.mode == 4:
             # random linear and polynomial
             key = value % self.hash_table_size
             a = self.nextPrime(ord(value[0]))
@@ -49,22 +49,31 @@ class hashset:
             if self.hash_table[i] is None:
                 self.hash_table[i] = value
                 return True
-        return False
+        self.resize()
+        return self.insert(value)
 
     def find(self, value):
         pos = self.gethash(value)
         for i in range(pos, self.hash_table_size):
             if self.hash_table[i] == value:
-                return i
+                return True
         for i in range(0, pos):
             if self.hash_table[i] == value:
-                return i
-        return -1
+                return True
+        return False
 
     def print_set(self):
         for i in range(0, self.hash_table_size):
             if self.hash_table[i] is not None:
                 print(f"{i+1}: {self.hash_table[i]}")
+
+    def resize(self):
+        temp = self.hash_table
+        self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
+        self.hash_table = [None] * self.hash_table_size
+        for i in range(len(temp)):
+            if temp[i] is not None:
+                self.insert(temp[i])
 
     def print_stats(self):
         elements = 0
