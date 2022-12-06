@@ -16,16 +16,21 @@ class bstree:
     def insert(self, value):
         if self.tree():
             # if tree is not NULL then insert into the correct sub-tree
-            self.left.insert(value) if value <= self.value else self.right.insert(value)
+            if value < self.value:
+                return self.left.insert(value)
+            elif value > self.value:
+                return self.right.insert(value)
+            else:
+                return True
         else:
             # otherwise create a new node containing the value
             self.value = value
             self.left = bstree()
             self.right = bstree()
+            return True
 
     def find(self, value):
         if self.tree():
-            # complete the find function
             if value == self.value:
                 return True
             elif value < self.value:
@@ -52,6 +57,5 @@ class bstree:
         return 1 + max(self.left.height(), self.right.height()) if self.tree() else 0
 
     def print_stats(self):
-        # update code to record and print statistic
         print("Height:", self.height())
         print("Size:", self.size())

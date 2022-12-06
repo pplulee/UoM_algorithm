@@ -12,6 +12,8 @@ class hashset:
         self.hash_table = [None] * self.hash_table_size
         self.insert_num = 0
         self.occupancy_rate = 0.75
+        self.insert_stat = []
+        self.find_stat = []
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -27,14 +29,20 @@ class hashset:
             n = n + 1
         return n
 
+    def doublehash(self, value):
+        hash = self.gethash(value)
+        hash1 = pow(hash, 3)
+        hash2 = self.nextPrime(hash)
+        return hash1, hash2
+
     def gethash(self, value):
         sum = 0
         for char in value:
             sum += ord(char)
-        if self.mode in [0,1,2,3]:
+        if self.mode in [0, 1, 2, 3]:
             # modular division
-            return sum % self.hash_table_size
-        elif self.mode in [4,5,6,7]:
+            return pow(sum, 2) % self.hash_table_size
+        elif self.mode in [4, 5, 6, 7]:
             # random linear and polynomial
             # use sum as key
             a = self.nextPrime(ord(value[0]))
@@ -42,54 +50,91 @@ class hashset:
             return (a * sum + b) % self.hash_table_size
 
     def insert(self, value):
-        if self.mode in [0,4]:  # linear probing
+        if self.mode in [0, 4]:  # linear probing
             pos = self.gethash(value)
             # insert behind pos
             for i in range(pos, self.hash_table_size):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
                     self.insert_num += 1
+                    self.insert_stat.append(i - pos + 1)
                     return True
                 elif self.hash_table[i] == value:
+                    self.insert_stat.append(i - pos + 1)
                     return True
                 # back to start
             for i in range(0, pos):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
                     self.insert_num += 1
+                    self.insert_stat.append(self.hash_table_size - pos + i + 1)
                     return True
                 elif self.hash_table[i] == value:
+                    self.insert_stat.append(self.hash_table_size - pos + i)
                     return True
-        elif self.mode in [1,5]:  # quadratic probing
+        elif self.mode in [1, 5]:  # quadratic probing
             for i in range(self.hash_table_size):
                 pos = (self.gethash(value) + i * i) % self.hash_table_size
                 if self.hash_table[pos] is None:
                     self.hash_table[pos] = value
                     self.insert_num += 1
+                    self.insert_stat.append(i + 1)
                     return True
                 elif self.hash_table[pos] == value:
+                    self.insert_stat.append(i)
                     return True
             # insert failed, need to resize
             self.resize()
             return self.insert(value)
+        elif self.mode in [2, 6]:  # double hashing
+            hash1, hash2 = self.doublehash(value)
+            for i in range(self.hash_table_size):
+                pos = (hash1 + i * hash2) % self.hash_table_size
+                if self.hash_table[pos] is None:
+                    self.hash_table[pos] = value
+                    self.insert_num += 1
+                    self.insert_stat.append(i + 1)
+                    return True
+                elif self.hash_table[pos] == value:
+                    self.insert_stat.append(i)
+                    return True
+            self.resize()
+            return self.insert(value)
         # table occupation rate check
-        self.resize()
+        if self.insert_num / self.hash_table_size > self.occupancy_rate:
+            self.resize()
 
     def find(self, value):
-        if self.mode in [0,4]:  # linear probing
+        if self.mode in [0, 4]:  # linear probing
             pos = self.gethash(value)
             for i in range(pos, self.hash_table_size):
                 if self.hash_table[i] == value:
+                    self.find_stat.append(i - pos + 1)
                     return True
             for i in range(0, pos):
                 if self.hash_table[i] == value:
+                    self.find_stat.append(self.hash_table_size - pos + i + 1)
                     return True
-        elif self.mode in [1,5]: # quadratic probing
+            self.find_stat.append(self.hash_table_size)
+            return False
+        elif self.mode in [1, 5]:  # quadratic probing
             for i in range(self.hash_table_size):
                 pos = (self.gethash(value) + i * i) % self.hash_table_size
                 if self.hash_table[pos] == value:
+                    self.find_stat.append(i + 1)
                     return True
                 elif self.hash_table[pos] is None:
+                    self.find_stat.append(i + 1)
+                    return False
+        elif self.mode in [2, 6]:  # double hashing
+            hash1, hash2 = self.doublehash(value)
+            for i in range(self.hash_table_size):
+                pos = (hash1 + i * hash2) % self.hash_table_size
+                if self.hash_table[pos] == value:
+                    self.find_stat.append(i + 1)
+                    return True
+                elif self.hash_table[pos] is None:
+                    self.find_stat.append(i + 1)
                     return False
         return False
 
@@ -99,15 +144,14 @@ class hashset:
                 print(f"{i + 1}: {self.hash_table[i]}")
 
     def resize(self):
-        if self.insert_num / self.hash_table_size > self.occupancy_rate:
-            print("Resizing hash table")
-            self.insert_num = 0
-            temp = self.hash_table
-            self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
-            self.hash_table = [None] * self.hash_table_size
-            for i in range(len(temp)):
-                if temp[i] is not None:
-                    self.insert(temp[i])
+        print("Resizing hash table")
+        self.insert_num = 0
+        temp = self.hash_table
+        self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
+        self.hash_table = [None] * self.hash_table_size
+        for i in range(len(temp)):
+            if temp[i] is not None:
+                self.insert(temp[i])
 
     def print_stats(self):
         elements = 0
@@ -121,7 +165,10 @@ class hashset:
         print(f"Hash table contains {elements} elements")
         print(f"Hash table has {collisions} collisions")
         print(f"Hash table load factor: {elements / self.hash_table_size}")
-        print(f"Insertion operation number: {self.insert_num}")
+        print(f"Insert operation number: {self.insert_num}")
+        print(f"Average insert operation steps: {sum(self.insert_stat) / len(self.insert_stat)}")
+        print(f"Average find operation steps: {sum(self.find_stat) / len(self.find_stat)}")
+
 
 # This is a cell structure assuming Open Addressing
 # It should contain and element that is the key and a state which is empty, in_use or deleted
