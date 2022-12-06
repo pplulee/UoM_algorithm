@@ -41,13 +41,13 @@ class hashset:
             sum += ord(char)
         if self.mode in [0, 1, 2, 3]:
             # modular division
-            return pow(sum, 2) % self.hash_table_size
+            return pow(sum, 3) % self.hash_table_size
         elif self.mode in [4, 5, 6, 7]:
             # random linear and polynomial
             # use sum as key
             a = self.nextPrime(ord(value[0]))
             b = self.nextPrime(ord(value[-1]))
-            return (a * sum + b) % self.hash_table_size
+            return pow((a * sum + b), 3) % self.hash_table_size
 
     def insert(self, value):
         if self.mode in [0, 4]:  # linear probing
@@ -152,6 +152,7 @@ class hashset:
         for i in range(len(temp)):
             if temp[i] is not None:
                 self.insert(temp[i])
+        del temp
 
     def print_stats(self):
         elements = 0
