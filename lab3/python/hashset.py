@@ -11,6 +11,7 @@ class hashset:
         self.hash_table_size = config.init_size
         self.hash_table = [None] * self.hash_table_size
         self.insert_num = 0
+        self.occupancy_rate = 0.75
 
     # Helper functions for finding prime numbers
     def isPrime(self, n):
@@ -30,10 +31,10 @@ class hashset:
         sum = 0
         for char in value:
             sum += ord(char)
-        if self.mode == 0 or self.mode == 1:
+        if self.mode in [0,1,2,3]:
             # modular division
             return sum % self.hash_table_size
-        elif self.mode == 4:
+        elif self.mode in [4,5,6,7]:
             # random linear and polynomial
             # use sum as key
             a = self.nextPrime(ord(value[0]))
@@ -41,22 +42,25 @@ class hashset:
             return (a * sum + b) % self.hash_table_size
 
     def insert(self, value):
-        if self.mode == 0 or self.mode == 4:  # linear probing
+        if self.mode in [0,4]:  # linear probing
             pos = self.gethash(value)
-            if self.hash_table[pos] == value:
-                self.insert_num += 1
-                return True
+            # insert behind pos
             for i in range(pos, self.hash_table_size):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
                     self.insert_num += 1
                     return True
+                elif self.hash_table[i] == value:
+                    return True
+                # back to start
             for i in range(0, pos):
                 if self.hash_table[i] is None:
                     self.hash_table[i] = value
                     self.insert_num += 1
                     return True
-        elif self.mode == 1:  # quadratic probing
+                elif self.hash_table[i] == value:
+                    return True
+        elif self.mode in [1,5]:  # quadratic probing
             for i in range(self.hash_table_size):
                 pos = (self.gethash(value) + i * i) % self.hash_table_size
                 if self.hash_table[pos] is None:
@@ -64,15 +68,15 @@ class hashset:
                     self.insert_num += 1
                     return True
                 elif self.hash_table[pos] == value:
-                    self.insert_num += 1
                     return True
-        # table occupation > 0.75
-        if self.insert_num / self.hash_table_size > 0.75:
+            # insert failed, need to resize
             self.resize()
             return self.insert(value)
+        # table occupation rate check
+        self.resize()
 
     def find(self, value):
-        if self.mode == 0 or self.mode == 4:  # linear probing
+        if self.mode in [0,4]:  # linear probing
             pos = self.gethash(value)
             for i in range(pos, self.hash_table_size):
                 if self.hash_table[i] == value:
@@ -80,7 +84,7 @@ class hashset:
             for i in range(0, pos):
                 if self.hash_table[i] == value:
                     return True
-        elif self.mode == 1:
+        elif self.mode in [1,5]: # quadratic probing
             for i in range(self.hash_table_size):
                 pos = (self.gethash(value) + i * i) % self.hash_table_size
                 if self.hash_table[pos] == value:
@@ -95,14 +99,15 @@ class hashset:
                 print(f"{i + 1}: {self.hash_table[i]}")
 
     def resize(self):
-        print("Hash table is full, resizing...")
-        self.insert_num = 0
-        temp = self.hash_table
-        self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
-        self.hash_table = [None] * self.hash_table_size
-        for i in range(len(temp)):
-            if temp[i] is not None:
-                self.insert(temp[i])
+        if self.insert_num / self.hash_table_size > self.occupancy_rate:
+            print("Resizing hash table")
+            self.insert_num = 0
+            temp = self.hash_table
+            self.hash_table_size = self.nextPrime(self.hash_table_size * 2)
+            self.hash_table = [None] * self.hash_table_size
+            for i in range(len(temp)):
+                if temp[i] is not None:
+                    self.insert(temp[i])
 
     def print_stats(self):
         elements = 0
