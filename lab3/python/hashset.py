@@ -31,17 +31,16 @@ class hashset:
 
     def doublehash(self, value):
         hash = self.gethash(value)
-        hash1 = hash**3
-        hash2 = hash**2
-        return hash1, hash2
+        hash2 = hash*len(value)+1
+        return hash, hash2
 
     def gethash(self, value):
         sum = 0
         for char in value:
-            sum += ord(char)
+            sum += ord(char)**3
         if self.mode in [0, 1, 2, 3]:
             # modular division
-            return sum % self.hash_table_size
+            return (sum*len(value)) % self.hash_table_size
         elif self.mode in [4, 5, 6, 7]:
             # random linear and polynomial
             # use sum as key
@@ -160,15 +159,23 @@ class hashset:
         for i in range(self.hash_table_size):
             if self.hash_table[i] is not None:
                 elements += 1
-                if self.gethash(self.hash_table[i]) != i:
-                    collisions += 1
+                if self.mode in [0,1,4,5]:
+                    if self.gethash(self.hash_table[i]) != i:
+                        collisions += 1
+                elif self.mode in [2,6]:
+                    if self.doublehash(self.hash_table[i])[0] != i:
+                        collisions += 1
         print(f"Hash table size: {self.hash_table_size}")
         print(f"Hash table contains {elements} elements")
         print(f"Hash table has {collisions} collisions")
         print(f"Hash table load factor: {elements / self.hash_table_size}")
         print(f"Insert operation number: {self.insert_num}")
         print(f"Average insert operation steps: {sum(self.insert_stat) / len(self.insert_stat)}")
+        print(f"Highest insert operation steps: {max(self.insert_stat)}")
+        print(f"Lowest insert operation steps: {min(self.insert_stat)}")
         print(f"Average find operation steps: {sum(self.find_stat) / len(self.find_stat)}")
+        print(f"Highest find operation steps: {max(self.find_stat)}")
+        print(f"Lowest find operation steps: {min(self.find_stat)}")
 
 
 # This is a cell structure assuming Open Addressing
