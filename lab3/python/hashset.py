@@ -31,8 +31,8 @@ class hashset:
 
     def doublehash(self, value):
         hash = self.gethash(value)
-        hash1 = pow(hash, 3)
-        hash2 = self.nextPrime(hash)
+        hash1 = hash**3
+        hash2 = hash**2
         return hash1, hash2
 
     def gethash(self, value):
@@ -41,13 +41,13 @@ class hashset:
             sum += ord(char)
         if self.mode in [0, 1, 2, 3]:
             # modular division
-            return pow(sum, 3) % self.hash_table_size
+            return sum % self.hash_table_size
         elif self.mode in [4, 5, 6, 7]:
             # random linear and polynomial
             # use sum as key
-            a = self.nextPrime(ord(value[0]))
-            b = self.nextPrime(ord(value[-1]))
-            return pow((a * sum + b), 3) % self.hash_table_size
+            a = ord(value[0])**2
+            b = ord(value[-1])**3
+            return (a * sum + b) % self.hash_table_size
 
     def insert(self, value):
         if self.mode in [0, 4]:  # linear probing
