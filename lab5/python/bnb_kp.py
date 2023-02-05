@@ -2,19 +2,23 @@ import sys
 
 from knapsack import knapsack
 
-DOUB_MAX = 10e30 # a large number, must be greater than  max value of any solution
-SIZE = 100000 # an estimate of how large the priority queue should become
-NITEMS = 2000 # an upper limit of the number of itmes
+DOUB_MAX = 10e30  # a large number, must be greater than  max value of any solution
+SIZE = 100000  # an estimate of how large the priority queue should become
+NITEMS = 2000  # an upper limit of the number of itmes
+
 
 class struc_sol:
     def __init__(self):
-        self.solution_vec = [None]*(NITEMS + 1) # "binary" solution vector
+        self.solution_vec = [None] * (NITEMS + 1)  # "binary" solution vector
         # solution_vec[1] = True means first item is packed in knapsack
         # solution_vec[1] = False means first item is NOT in knapsack
         # soultion_vec[0] is meaningless
-        
+
+        self.val = 0
+        self.bound = 0
+        self.fixed = 0
         # objects of this class will also have self.val, self.bound and self.fixed for the value, upper bound of the solutoin and number of items fixed to either True (1) or False (0), not '*"
-        
+
     def copy(self):
         copy = struc_sol()
         for i in range(0, NITEMS + 1):
@@ -23,75 +27,73 @@ class struc_sol:
         copy.fixed = self.fixed
         copy.bound = self.bound
         return copy
-        
+
+
 class bnb(knapsack):
     def __init__(self, filename):
         knapsack.__init__(self, filename)
-        self.QueueSize = 0 # the number of items currently stored in the priority queue
-        self.QUIET = False # can be set of 1 to suppress output
-        
+        self.QueueSize = 0  # the number of items currently stored in the priority queue
+        self.QUIET = False  # can be set of 1 to suppress output
+
     # The following four functions implement a priority queue
     # They are based on the functions given in Robert Sedgwick's book, Algorithms in C
-    
+
     def upheap(self, qsize):
         # upheap reoders the elements in the heap (queue) afer an insertion
-        
+
         temp_element = self.pqueue[qsize]
         self.pqueue[0].bound = DOUB_MAX
-        
-        while (self.pqueue[qsize//2].bound <= temp_element.bound):
-            self.pqueue[qsize]=self.pqueue[qsize//2]
-            qsize = qsize//2
-        self.pqueue[qsize]=temp_element
-        
+
+        while self.pqueue[qsize // 2].bound <= temp_element.bound:
+            self.pqueue[qsize] = self.pqueue[qsize // 2]
+            qsize = qsize // 2
+        self.pqueue[qsize] = temp_element
+
     def insert(self, element):
-        assert(self.QueueSize<SIZE-1)
-        self.QueueSize = self.QueueSize+1
-        self.pqueue[self.QueueSize]=element
+        assert (self.QueueSize < SIZE - 1)
+        self.QueueSize = self.QueueSize + 1
+        self.pqueue[self.QueueSize] = element
         self.upheap(self.QueueSize)
-        
-    def downheap(self,qindex):
+
+    def downheap(self, qindex):
         # down heap reorders the elements in the heap (queue) after a removal
-        
+
         temp_element = self.pqueue[qindex]
-        while (qindex <= self.QueueSize//2):
-            j=qindex + qindex
-            if (j<self.QueueSize and self.pqueue[j].bound < self.pqueue[j+1].bound):
+        while qindex <= self.QueueSize // 2:
+            j = qindex + qindex
+            if j < self.QueueSize and self.pqueue[j].bound < self.pqueue[j + 1].bound:
                 j = j + 1
-            if (temp_element.bound >= self.pqueue[j].bound):
+            if temp_element.bound >= self.pqueue[j].bound:
                 break
             self.pqueue[qindex] = self.pqueue[j]
             qindex = j
-        self.pqueue[qindex]=temp_element
-        
+        self.pqueue[qindex] = temp_element
+
     def removeMax(self):
         head = self.pqueue[1]
         self.pqueue[1] = self.pqueue[self.QueueSize]
-        self.QueueSize = self.QueueSize-1
+        self.QueueSize = self.QueueSize - 1
         self.downheap(1)
         return head
-        
+
     # End priority queue functions
-    
-    def print_sol(self,sol):
+
+    def print_sol(self, sol):
         # prints a solution in the form 000100xxx etc
         # with x's denoting the part of the solution not yet fixed (determined)
-        
-        print("%d %g " % (sol.val,sol.bound), end="")
+
+        print("%d %g " % (sol.val, sol.bound), end="")
         for i in range(1, sol.fixed + 1):
-            if (sol.solution_vec[i]):
-                s = "1"
-            else:
-                s = "0"
+            s = "1" if sol.solution_vec[i] else "0"
             print(s, end="")
         for i in range(sol.fixed + 1, self.Nitems + 1):
             print("x", end="")
-            i = i + 1;
+            # i = i + 1
         print("")
-        
+
     def frac_bound(self, sol, fix):
         # Updates the values sol.val and sol.bound
-        
+
         # Computes the fractional knapsack upper bound
         # given a binary vector of items (sol->solution_vec),
         # where the first
@@ -106,44 +108,50 @@ class bnb(knapsack):
 
         # Everything above assumes items are sorted in decreasing
         # profit/weight ratio
-        
-        totalp = 0 # profit total
-        totalw =0 # weight total
-        sol.val=-1
-        
+
+        totalp = 0  # profit total
+        totalw = 0  # weight total
+        sol.val = -1
+
         # compute the current value and weight of the fixed part
-        for i in range (1, fix + 1):
-            if (sol.solution_vec[i]):
+        for i in range(1, fix + 1):
+            if sol.solution_vec[i]:
                 totalw = totalw + self.item_weights[self.temp_indexes[i]]
                 totalp = totalp + self.item_values[self.temp_indexes[i]]
-        if (totalw > self.Capacity):
+        if totalw > self.Capacity:
             return
-            
+
         sol.val = totalp
         #   print("%g %d" % (totalp, totalw))
-        
+
         # add in items the rest of the items until capacity is exceeded
         i = fix + 1
-        while (i <= self.Nitems and totalw < self.Capacity):
+        while i <= self.Nitems and totalw < self.Capacity:
             # ADD CODE HERE to update totalw and totalp
-            i = i + 1
-        
-        # if over-run the capacity, adjust profit total by substracting that overrun fractio of the last item
-        if (totalw > self.Capacity):
-            i = i - 1
-            totalp = totalp - ((totalw - self.Capacity)/(self.item_weights[self.temp_indexes[i]])*self.item_values[self.temp_indexes[i]])
+            totalw = totalw + self.item_weights[self.temp_indexes[i]]
+            totalp = totalp + self.item_values[self.temp_indexes[i]]
+            i+=1
+
+        # if over-run the capacity, adjust profit total by subtracting that overrun fraction of the last item
+        if totalw > self.Capacity:
+            i-=1
+            totalp = totalp - ((totalw - self.Capacity) / (self.item_weights[self.temp_indexes[i]]) * self.item_values[
+                self.temp_indexes[i]])
         sol.bound = totalp
-        
+
     def branch_and_bound(self, final_sol):
-        self.pqueue[0] = struc_sol() # set a blank first element
-        
+        self.pqueue[0] = struc_sol()  # set a blank first element
+
         # branch and bound
 
         # start with the empty solution vector
         # compute its value and its bound
         # put current_best = to its value
         # store it in the priority queue
-  
+        solution = struc_sol()
+        self.frac_bound(solution, 0)
+        current_best = solution.val
+        self.insert(solution)
         # LOOP until queue is empty or upper bound is not greater than current_best:
         #   remove the first item in the queue
         #   construct two children, 1 with a 1 added, 1 with a O added
@@ -154,26 +162,38 @@ class bnb(knapsack):
         #       if value > current_best, set current_best to it, and copy child to final_sol
         #       add child to the queue
         # RETURN
-  
 
         # YOUR CODE GOES HERE
-        
+        while self.QueueSize > 0 and self.pqueue[1].bound > current_best:
+            solution = self.removeMax()
+            child = [struc_sol(), struc_sol()]
+            for item in child:
+                item.solution_vec = [False] * (self.Nitems + 1)
+                self.copy_array(solution.solution_vec, item.solution_vec)
+                item.solution_vec[solution.fixed + 1] = child.index(item)
+                item.fixed = solution.fixed + 1
+                self.frac_bound(item, item.fixed)
+                if item.val == -1:
+                    continue
+                elif item.val > current_best:
+                    current_best = item.val
+                    self.copy_array(item.solution_vec, final_sol)
+                self.insert(item)
+
     def copy_array(self, array_from, array_to):
         # This copies Nitems elements of one boolean array to another
         # Notice it ignores the 0th item of the array
-        for i in range(1, self.Nitems+1):
+        for i in range(1, self.Nitems + 1):
             array_to[i] = array_from[i]
 
-        
-        
+
 knapsk = bnb(sys.argv[1])
-assert(NITEMS >= knapsk.Nitems)
-final_sol = [False]*(knapsk.Nitems + 1)
+assert (NITEMS >= knapsk.Nitems)
+final_sol = [False] * (knapsk.Nitems + 1)
 knapsk.sort_by_ratio()
 
-knapsk.pqueue = [None]*SIZE
+knapsk.pqueue = [None] * SIZE
 
 knapsk.branch_and_bound(final_sol)
 print("Branch and Bound Solution of Knapack is:")
 knapsk.check_evaluate_and_print_sol(final_sol)
-
