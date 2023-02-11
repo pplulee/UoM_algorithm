@@ -23,11 +23,11 @@ class greedy(knapsack):
         # - but keep going until all items have been tried.
         for i in range(1, self.Nitems + 1):
             if self.total_weight + self.item_weights[self.temp_indexes[i]] <= self.Capacity:
-                solution[self.temp_indexes[i]] = True
+                solution[i] = True
                 self.total_weight += self.item_weights[self.temp_indexes[i]]
                 self.total_value += self.item_values[self.temp_indexes[i]]
             else:
-                solution[self.temp_indexes[i]] = False
+                solution[i] = False
 
         print("The greedy solution - not necessarily optimal - is:")
         self.check_evaluate_and_print_sol(solution)
