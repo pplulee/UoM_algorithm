@@ -20,20 +20,24 @@ class enum_knapsack(knapsack):
         self.QUIET = True
         best_value = 0 # total value packed in the best solution
         
-        while (not self.next_binary(solution, self.Nitems)):
+        while not self.next_binary(solution, self.Nitems):
             j = j + 1.0
-            if (not self.QUIET):
-                print("done %g of the full enumeration" % (j/math.pow(2, self.Nitems)))
+            current_progress = j/math.pow(2, self.Nitems)
+            if not self.QUIET:
+                print("done %g of the full enumeration" % current_progress)
+            print("\r", end="")
+            print(f"program running status: {format(current_progress*100,'.2f')}% | [{'▋' * (int(current_progress*100) // 2)}{' ' * (int((1-current_progress)*100) // 2)}]", end="")
+            sys.stdout.flush()
 
             infeasible = self.check_evaluate_and_print_sol(solution)
             
-            if ((not infeasible) and self.total_value > best_value):
+            if (not infeasible) and self.total_value > best_value:
                 best_value = self.total_value
                 
                 for i in range(1, self.Nitems + 1):
                     best_solution[i] = solution[i]
                     
-            if (not self.QUIET):
+            if not self.QUIET:
                 print("best so far has value %d" % best_value)
         
         self.QUIET = False
@@ -45,14 +49,14 @@ class enum_knapsack(knapsack):
         # method "adds 1" to the vector, e.g. 0001 would turn to 0010.
         # If the string overflows, then the function returs True, else it returns False
         i = Nitems
-        while (i > 0):
-            if (sol[i]):
+        while i > 0:
+            if sol[i]:
                 sol[i] = False
                 i = i -1
             else:
                 sol[i] = True
                 break
-        if (i == 0):
+        if i == 0:
             return True
         else:
             return False

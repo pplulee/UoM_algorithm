@@ -1,4 +1,5 @@
 import sys
+import time
 
 from knapsack import knapsack
 
@@ -6,8 +7,10 @@ from knapsack import knapsack
 class dp(knapsack):
     def __init__(self, filename):
         knapsack.__init__(self, filename)
+        self.time = 0
 
     def DP(self, solution):
+        start_time = time.time()
         # Renaming things to keep track of them wrt. names used in algorithm
         v = self.item_values
         wv = self.item_weights
@@ -44,7 +47,8 @@ class dp(knapsack):
                 print("Item %d is in the knapsack" % i)
                 solution[i] = True
                 K = K - wv[i]
-
+        end_time = time.time()
+        self.time = end_time - start_time
         return V[n][W]
 
 
