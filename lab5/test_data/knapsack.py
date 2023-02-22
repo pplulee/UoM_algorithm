@@ -27,14 +27,15 @@ class knapsack:
             self.Capacity = int(f.readline())
             return
         except:
-            print("Problem reading from file and/or allocating arrays")
+            # print("Problem reading from file and/or allocating arrays")
             exit(1)
             
     def print_instance(self):
-        print("item\tW\tV")
-        for i in range(1, self.Nitems + 1):
-            print("%d\t%d\t%d" % (self.temp_indexes[i], self.item_weights[i], self.item_values[i]))
-        print("%d" % self.Capacity)
+        # print("item\tW\tV")
+        # for i in range(1, self.Nitems + 1):
+        #     print("%d\t%d\t%d" % (self.temp_indexes[i], self.item_weights[i], self.item_values[i]))
+        # print("%d" % self.Capacity)
+        pass
         
     def sort_by_ratio(self):
         # sort the item indexes
@@ -46,9 +47,9 @@ class knapsack:
         self.temp_indexes.insert(0, start)
         
         
-        for i in range(1, self.Nitems + 1):
-            print("%d\t%d\t" % (self.item_weights[self.temp_indexes[i]], self.item_values[self.temp_indexes[i]]), end="")
-            print("%f" % (self.item_weights[self.temp_indexes[i]] / self.item_values[self.temp_indexes[i]]))
+        # for i in range(1, self.Nitems + 1):
+        #     print("%d\t%d\t" % (self.item_weights[self.temp_indexes[i]], self.item_values[self.temp_indexes[i]]), end="")
+        #     print("%f" % (self.item_weights[self.temp_indexes[i]] / self.item_values[self.temp_indexes[i]]))
         
     def mycomp(self, ia):
         if (self.item_values[ia] == None):
@@ -79,22 +80,22 @@ class knapsack:
                 pack[self.temp_indexes[i]] = False
                 
         # Second pass: now print out item numbers of items to be packed in ascending order
-        if (not self.QUIET):
-            print("Pack items: ", end="")
+        # if (not self.QUIET):
+        #     print("Pack items: ", end="")
             
         for i in range(1, self.Nitems + 1):
             if (pack[i]):
-                if (not self.QUIET):
-                    print("%d " % i, end="")
+                # if (not self.QUIET):
+                #     print("%d " % i, end="")
                 self.total_value += self.item_values[i]
                 self.total_weight += self.item_weights[i]
                 
         # Finally, print out the value, weight and Capacity, and feasibility
-        if (not self.QUIET):
-            if (self.total_weight > self.Capacity):
-                print("\nvalue=%d weight=%d > Capacity=%d: Infeasible" % (self.total_value, self.total_weight, self.Capacity))
-            else:
-                print("\nvalue=%d weight=%d <= Capacity=%d: Feasible" % (self.total_value, self.total_weight, self.Capacity))
+        # if (not self.QUIET):
+        #     if (self.total_weight > self.Capacity):
+        #         print("\nvalue=%d weight=%d > Capacity=%d: Infeasible" % (self.total_value, self.total_weight, self.Capacity))
+        #     else:
+        #         print("\nvalue=%d weight=%d <= Capacity=%d: Feasible" % (self.total_value, self.total_weight, self.Capacity))
         if (self.total_weight > self.Capacity):
             return True # return True for infeasible solutions
         else:

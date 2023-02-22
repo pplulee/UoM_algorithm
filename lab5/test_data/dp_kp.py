@@ -42,8 +42,8 @@ class dp(knapsack):
         # now discover which items were in the optimal solution
         for i in range(n, 0, -1):
             if Keep[i][K]:
-                if not self.QUIET:
-                    print("Item %d is in the knapsack" % i)
+                # if not self.QUIET:
+                #     print("Item %d is in the knapsack" % i)
                 solution[i] = True
                 K = K - wv[i]
         return V[n][W]

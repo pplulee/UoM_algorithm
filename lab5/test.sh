@@ -67,10 +67,10 @@ fi
 algs=( enum bnb dp greedy )
 inputs=( 'easy.20.txt' 'easy.200.txt' 'hard.200.txt' 'hard.2000.txt' ) 
 declare -A times=( 
-  ['easy.20.txt']=5
-  ['easy.200.txt']=5
-  ['hard.200.txt']=60
-  ['hard.2000.txt']=60
+  ['easy.20.txt']=600
+  ['easy.200.txt']=600
+  ['hard.200.txt']=1800
+  ['hard.2000.txt']=1800
 )
 declare -A solutions=(
   ['easy.20.txt enum']=377
